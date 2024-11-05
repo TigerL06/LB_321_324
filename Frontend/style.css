@@ -58,3 +58,7 @@ footer{
     top: 60px; 
     margin: 35px;
 }
+#header{
+    font-size: 50px;       /* Macht die Schrift größer */
+    font-weight: bold;     /* Macht die Schrift fett */
+}
