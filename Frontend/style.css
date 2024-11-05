@@ -1,8 +1,15 @@
+body{
+    display: flex;
+    flex-direction: column;
+}
 #main{
     align-self: center;
-    width: 100%;
+    width: 800px;
     height: 80%;
     align-content: center;
+    align-self: center;
+    align-items: center;
+    text-align: center;
 }
 
 header{
@@ -14,4 +21,40 @@ header{
 footer{
     align-self: center;
     align-content: center;
+    background-color: black;
+    width: 90%;
+    height: 7rem;
+    color: red;
+    align-content: center;
+    text-align: center;
+}
+
+#search{
+    align-self: center;
+    
+}
+
+#top{
+    align-self: center;
+}
+
+#add{
+    width: 100px;
+    height: 50px;
+    background-color: green;
+    top: 10px;  /* Abstand vom oberen Rand */
+    right: 10px; /* Abstand vom rechten Rand */
+    align-self: ri;
+    margin-left: 1rem;
+}
+
+.note{
+    width: 700px;
+    height: 300px;
+    align-self: center;
+    align-content: center;
+    text-align: center;
+    background-color: red;
+    top: 60px; 
+    margin: 35px;
 }
