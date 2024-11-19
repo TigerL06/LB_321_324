@@ -6,50 +6,53 @@ const app = express();
 const port = 3000;
 
 // MongoDB-Verbindungsdetails
-const url = 'mongodb+srv://HeissiSchoggi:GurgeleIschWichtig420@m324m321.bdyvh.mongodb.net/?retryWrites=true&w=majority&appName=M324M321'; // Dein Connection-String
-const dbName = 'notizdb'; // Datenbankname
+const url = 'mongodb://localhost:27017'; // MongoDB-Standardport
+const dbName = 'notizdb'; // Datenbankname, basierend auf deinem Screenshot
 let db;
 
 // Middleware
 app.use(bodyParser.json());
 
 // Verbindung zur MongoDB herstellen
-MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(client => {
+(async () => {
+    try {
+        const client = await MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
         console.log('Mit MongoDB verbunden...');
         db = client.db(dbName);
     })
-    .catch(error => {
-        console.error('Fehler bei der Verbindung zur MongoDB:', error.message);
-        process.exit(1);
-    });
+    .catch(error => console.error(error));
 
 // --- CRUD-Funktionen ---
 
 // 1. Alle Notizen abrufen
-app.get('/notes', (req, res) => {
-    db.collection('notes')
-        .find()
-        .toArray()
-        .then(notes => res.status(200).json(notes))
-        .catch(error => res.status(500).json({ error: error.message }));
+app.get('/notes', async (req, res) => {
+    try {
+        const notes = await db.collection(collectionName).find().toArray();
+        res.status(200).json(notes);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // 2. Eine spezifische Notiz abrufen
-app.get('/notes/:id', (req, res) => {
+app.get('/notes/:id', async (req, res) => {
     const id = req.params.id;
-    db.collection('notes')
-        .findOne({ _id: new ObjectId(id) })
-        .then(note => {
-            if (!note) return res.status(404).json({ error: 'Notiz nicht gefunden' });
-            res.status(200).json(note);
-        })
-        .catch(error => res.status(500).json({ error: error.message }));
+    if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'Ungültige ID' });
+    }
+
+    try {
+        const note = await db.collection(collectionName).findOne({ _id: new ObjectId(id) });
+        if (!note) return res.status(404).json({ error: 'Notiz nicht gefunden' });
+        res.status(200).json(note);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // 3. Neue Notiz erstellen
 app.post('/notes', (req, res) => {
-    const newNote = req.body; // erwartet { title, mainText }
+    const newNote = req.body; // erwartet { title, mainText, lastModified }
     newNote.lastModified = new Date();
     db.collection('notes')
         .insertOne(newNote)
@@ -58,32 +61,58 @@ app.post('/notes', (req, res) => {
 });
 
 // 4. Notiz aktualisieren
-app.put('/notes/:id', (req, res) => {
+app.put('/notes/:id', async (req, res) => {
     const id = req.params.id;
-    const updatedNote = req.body;
-    updatedNote.lastModified = new Date();
-    db.collection('notes')
-        .updateOne(
+
+    if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'Ungültige ID' });
+    }
+
+    const { title, mainText } = req.body;
+
+    if (!title && !mainText) {
+        return res.status(400).json({ error: 'Es muss mindestens ein Feld zum Aktualisieren angegeben werden' });
+    }
+
+    const updatedNote = { lastModified: new Date() };
+    if (title) updatedNote.title = title;
+    if (mainText) updatedNote.mainText = mainText;
+
+    try {
+        const result = await db.collection(collectionName).updateOne(
             { _id: new ObjectId(id) },
             { $set: updatedNote }
-        )
-        .then(result => {
-            if (result.matchedCount === 0) return res.status(404).json({ error: 'Notiz nicht gefunden' });
-            res.status(200).json({ message: 'Notiz aktualisiert' });
-        })
-        .catch(error => res.status(500).json({ error: error.message }));
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ error: 'Notiz nicht gefunden' });
+        }
+
+        res.status(200).json({ message: 'Notiz aktualisiert' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // 5. Notiz löschen
-app.delete('/notes/:id', (req, res) => {
+app.delete('/notes/:id', async (req, res) => {
     const id = req.params.id;
-    db.collection('notes')
-        .deleteOne({ _id: new ObjectId(id) })
-        .then(result => {
-            if (result.deletedCount === 0) return res.status(404).json({ error: 'Notiz nicht gefunden' });
-            res.status(200).json({ message: 'Notiz gelöscht' });
-        })
-        .catch(error => res.status(500).json({ error: error.message }));
+
+    if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'Ungültige ID' });
+    }
+
+    try {
+        const result = await db.collection(collectionName).deleteOne({ _id: new ObjectId(id) });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ error: 'Notiz nicht gefunden' });
+        }
+
+        res.status(200).json({ message: 'Notiz gelöscht' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // Server starten
