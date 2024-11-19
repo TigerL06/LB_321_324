@@ -11,7 +11,7 @@
 
 </head>
 
-<body>
+<body onload="fetchAndDisplayNotes()">
   <header id="header">
     <h1>Notizwebseite</h1>
   </header>
@@ -21,7 +21,9 @@
         <input type="text" id="search">
         <button id="add">Add</button>
       </div>
-      <div class="note">Note</div>
+      <div id ="note">
+
+      </div>
 
     </div>
   </div>
@@ -33,17 +35,6 @@
         L.Koch.inf22@stud.bbbaden.ch</a> </li>
   </footer>
   
-  <div id="popup" class="popup">
-    <div class="popup-content">
-      <span class="close-button">&times;</span>
-      <h2>Neue Notiz hinzufügen</h2>
-      <label for="note-title">Titel:</label>
-      <input type="text" id="note-title" placeholder="Titel eingeben">
-      <label for="note-content">Notiz:</label>
-      <textarea id="note-content" placeholder="Notiztext eingeben"></textarea>
-      <button id="save-note">Speichern</button>
-    </div>
-  </div>
 </body>
 
 </html>

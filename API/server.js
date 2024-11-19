@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors'); // CORS-Paket importieren
 const { MongoClient, ObjectId } = require('mongodb');
 const bodyParser = require('body-parser');
 
@@ -12,6 +13,7 @@ const collectionName = 'notes'; // Definiert die Collection explizit
 let db;
 
 // Middleware
+app.use(cors()); // CORS aktivieren
 app.use(bodyParser.json());
 
 // Verbindung zur MongoDB herstellen
@@ -27,7 +29,6 @@ app.use(bodyParser.json());
 })();
 
 // --- CRUD-Funktionen ---
-
 // 1. Alle Notizen abrufen
 app.get('/notes', async (req, res) => {
     try {

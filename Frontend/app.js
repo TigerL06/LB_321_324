@@ -70,7 +70,7 @@ function home(){
     container.appendChild(top);
     container.appendChild(notes);
     parent.appendChild(container);
-    note();
+    fetchAndDisplayNotes();
     button.addEventListener("click", function (){
         container.remove
         add();
@@ -78,9 +78,38 @@ function home(){
     });
 }
 
-function note(){
-    let container = document.querySelector("#note")
-    let note = document.createElement("div");
-    note.setAttribute("class", "note");
-    container.appendChild(note);
-}
+async function fetchAndDisplayNotes() {
+    try {
+      const response = await fetch('http://localhost:3000/notes', {
+        mode: 'cors'});
+
+      if (!response.ok) {
+        throw new Error('Fehler beim Abrufen der Daten');
+      }
+  
+      const notes = await response.json();
+      
+  
+      // Notizen dynamisch hinzufügen
+      notes.forEach(note => {
+        let noteDiv = document.createElement("div");
+        noteDiv.className = "note";
+  
+        // Titel und Haupttext einfügen
+        let title = document.createElement("h2");
+        title.textContent = note.title;
+  
+        let mainText = document.createElement("p");
+        mainText.textContent = note.mainText;
+  
+        let container = document.querySelector("#note")
+        // Elemente hinzufügen
+        noteDiv.appendChild(title);
+        noteDiv.appendChild(mainText);
+  
+        container.appendChild(noteDiv);
+      });
+    } catch (error) {
+      console.error("Fehler:", error);
+    }
+  }
