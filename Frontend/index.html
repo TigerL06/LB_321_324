@@ -11,7 +11,7 @@
 
 </head>
 
-<body>
+<body onload="fetchAndDisplayNotes()">
   <header id="header">
     <h1>Notizwebseite</h1>
   </header>
@@ -21,7 +21,9 @@
         <input type="text" id="search">
         <button id="add">Add</button>
       </div>
-      <div class="note">Note</div>
+      <div id ="note">
+
+      </div>
 
     </div>
   </div>
@@ -35,7 +37,7 @@
     <p>Cedric Tuma </p>
     <p>Nathan Göhl </p>
   </footer>
-
+  
   <div id="popup" class="popup">
     <div class="popup-content">
       <span class="close-button">&times;</span>
