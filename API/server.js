@@ -3,11 +3,11 @@ const { MongoClient, ObjectId } = require('mongodb');
 const bodyParser = require('body-parser');
 
 const app = express();
-const port = 8080;
+const port = 3000;
 
 // MongoDB-Verbindungsdetails
-const url = 'mongodb://localhost:27017'; // MongoDB-Standardport
-const dbName = 'notizdb'; // Datenbankname, basierend auf deinem Screenshot
+const url = 'mongodb+srv://HeissiSchoggi:GurgeleIschWichtig420@m324m321.bdyvh.mongodb.net/?retryWrites=true&w=majority&appName=M324M321'; // Dein Connection-String
+const dbName = 'notizdb'; // Datenbankname
 let db;
 
 // Middleware
@@ -19,7 +19,10 @@ MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
         console.log('Mit MongoDB verbunden...');
         db = client.db(dbName);
     })
-    .catch(error => console.error(error));
+    .catch(error => {
+        console.error('Fehler bei der Verbindung zur MongoDB:', error.message);
+        process.exit(1);
+    });
 
 // --- CRUD-Funktionen ---
 
@@ -46,13 +49,14 @@ app.get('/notes/:id', (req, res) => {
 
 // 3. Neue Notiz erstellen
 app.post('/notes', (req, res) => {
-    const newNote = req.body; // erwartet { title, mainText, lastModified }
+    const newNote = req.body; // erwartet { title, mainText }
     newNote.lastModified = new Date();
     db.collection('notes')
         .insertOne(newNote)
         .then(result => res.status(201).json(result.ops[0]))
         .catch(error => res.status(500).json({ error: error.message }));
 });
+
 // 4. Notiz aktualisieren
 app.put('/notes/:id', (req, res) => {
     const id = req.params.id;
@@ -84,5 +88,5 @@ app.delete('/notes/:id', (req, res) => {
 
 // Server starten
 app.listen(port, () => {
-    console.log("Server läuft auf http://localhost:${port}");
+    console.log(`Server läuft auf http://localhost:${port}`);
 });
