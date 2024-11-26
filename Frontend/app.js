@@ -106,7 +106,6 @@ async function fetchAndDisplayNotes() {
         // Elemente hinzufügen
         noteDiv.appendChild(title);
         noteDiv.appendChild(mainText);
-  
         container.appendChild(noteDiv);
       });
     } catch (error) {
